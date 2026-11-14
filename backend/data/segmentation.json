@@ -1,0 +1,182 @@
+[
+ {
+  "lakeId": "BT-SK-001",
+  "model": "U-Net (ResNet34)",
+  "iou": 90.0,
+  "diceScore": 94.7,
+  "confidence": 99.1,
+  "timestamp": "2026-11-14T04:16:57",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-001",
+  "model": "U-Net (ResNet34)",
+  "iou": 93.2,
+  "diceScore": 96.5,
+  "confidence": 99.1,
+  "timestamp": "2026-11-14T04:16:58",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-002",
+  "model": "U-Net (ResNet34)",
+  "iou": 91.7,
+  "diceScore": 95.7,
+  "confidence": 99.1,
+  "timestamp": "2026-11-14T04:17:00",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-003",
+  "model": "U-Net (ResNet34)",
+  "iou": 92.7,
+  "diceScore": 96.2,
+  "confidence": 98.8,
+  "timestamp": "2026-11-14T04:17:02",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-004",
+  "model": "U-Net (ResNet34)",
+  "iou": 86.8,
+  "diceScore": 92.9,
+  "confidence": 98.2,
+  "timestamp": "2026-11-14T04:17:03",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-005",
+  "model": "U-Net (ResNet34)",
+  "iou": 86.5,
+  "diceScore": 92.8,
+  "confidence": 98.6,
+  "timestamp": "2026-11-14T04:17:05",
+  "split": "validation"
+ },
+ {
+  "lakeId": "GL-HP-006",
+  "model": "U-Net (ResNet34)",
+  "iou": 85.8,
+  "diceScore": 92.4,
+  "confidence": 97.5,
+  "timestamp": "2026-11-14T04:17:06",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-007",
+  "model": "U-Net (ResNet34)",
+  "iou": 92.2,
+  "diceScore": 95.9,
+  "confidence": 99.1,
+  "timestamp": "2026-11-14T04:17:08",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-008",
+  "model": "U-Net (ResNet34)",
+  "iou": 85.2,
+  "diceScore": 92.0,
+  "confidence": 98.2,
+  "timestamp": "2026-11-14T04:17:09",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-009",
+  "model": "U-Net (ResNet34)",
+  "iou": 85.1,
+  "diceScore": 91.9,
+  "confidence": 94.9,
+  "timestamp": "2026-11-14T04:17:10",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-010",
+  "model": "U-Net (ResNet34)",
+  "iou": 85.5,
+  "diceScore": 92.2,
+  "confidence": 97.5,
+  "timestamp": "2026-11-14T04:17:12",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-011",
+  "model": "U-Net (ResNet34)",
+  "iou": 89.9,
+  "diceScore": 94.7,
+  "confidence": 97.0,
+  "timestamp": "2026-11-14T04:17:13",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-012",
+  "model": "U-Net (ResNet34)",
+  "iou": 93.5,
+  "diceScore": 96.7,
+  "confidence": 98.2,
+  "timestamp": "2026-11-14T04:17:14",
+  "split": "validation"
+ },
+ {
+  "lakeId": "GL-HP-013",
+  "model": "U-Net (ResNet34)",
+  "iou": 91.8,
+  "diceScore": 95.7,
+  "confidence": 97.7,
+  "timestamp": "2026-11-14T04:17:16",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-015",
+  "model": "U-Net (ResNet34)",
+  "iou": 87.8,
+  "diceScore": 93.5,
+  "confidence": 98.3,
+  "timestamp": "2026-11-14T04:17:18",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-016",
+  "model": "U-Net (ResNet34)",
+  "iou": 94.0,
+  "diceScore": 96.9,
+  "confidence": 97.9,
+  "timestamp": "2026-11-14T04:17:20",
+  "split": "validation"
+ },
+ {
+  "lakeId": "GL-HP-018",
+  "model": "U-Net (ResNet34)",
+  "iou": 88.1,
+  "diceScore": 93.7,
+  "confidence": 97.9,
+  "timestamp": "2026-11-14T04:17:21",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-019",
+  "model": "U-Net (ResNet34)",
+  "iou": 81.9,
+  "diceScore": 90.1,
+  "confidence": 98.1,
+  "timestamp": "2026-11-14T04:17:22",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-020",
+  "model": "U-Net (ResNet34)",
+  "iou": 92.9,
+  "diceScore": 96.3,
+  "confidence": 96.7,
+  "timestamp": "2026-11-14T04:17:24",
+  "split": "train"
+ },
+ {
+  "lakeId": "GL-HP-021",
+  "model": "U-Net (ResNet34)",
+  "iou": 95.6,
+  "diceScore": 97.8,
+  "confidence": 98.3,
+  "timestamp": "2026-11-14T04:17:25",
+  "split": "train"
+ }
+]

@@ -1,0 +1,852 @@
+{
+ "BT-SK-001": [
+  {
+   "date": "2018-09-30",
+   "year": 2018,
+   "area": 1.3554,
+   "area_weak_label": 1.3231
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 1.4569,
+   "area_weak_label": 1.4891
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 1.2116,
+   "area_weak_label": 1.2379
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 1.6167,
+   "area_weak_label": 1.633
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 1.4072,
+   "area_weak_label": 1.4141
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 1.4433,
+   "area_weak_label": 1.5261
+  }
+ ],
+ "GL-HP-001": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.9315,
+   "area_weak_label": 0.9771
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.9568,
+   "area_weak_label": 1.0173
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.987,
+   "area_weak_label": 1.0502
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 1.0313,
+   "area_weak_label": 1.0879
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 1.0456,
+   "area_weak_label": 1.0885
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 1.0898,
+   "area_weak_label": 1.1205
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 1.1212,
+   "area_weak_label": 1.163
+  }
+ ],
+ "GL-HP-002": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 1.5393,
+   "area_weak_label": 1.4582
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 1.5867,
+   "area_weak_label": 1.4997
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 1.5773,
+   "area_weak_label": 1.5084
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 1.6734,
+   "area_weak_label": 1.5783
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 1.6413,
+   "area_weak_label": 1.5958
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 1.6487,
+   "area_weak_label": 1.63
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 1.6364,
+   "area_weak_label": 1.6644
+  }
+ ],
+ "GL-HP-003": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.491,
+   "area_weak_label": 0.4517
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.4807,
+   "area_weak_label": 0.4496
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.4883,
+   "area_weak_label": 0.4496
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.4533,
+   "area_weak_label": 0.4492
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.4701,
+   "area_weak_label": 0.4508
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.4644,
+   "area_weak_label": 0.45
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.487,
+   "area_weak_label": 0.4518
+  }
+ ],
+ "GL-HP-004": [
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0748,
+   "area_weak_label": 0.0863
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.1153,
+   "area_weak_label": 0.112
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.1326,
+   "area_weak_label": 0.132
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.1052,
+   "area_weak_label": 0.0978
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.1333,
+   "area_weak_label": 0.1322
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.1592,
+   "area_weak_label": 0.1384
+  }
+ ],
+ "GL-HP-005": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.2549,
+   "area_weak_label": 0.2877
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.2681,
+   "area_weak_label": 0.2904
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.26,
+   "area_weak_label": 0.305
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.2937,
+   "area_weak_label": 0.3278
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.3072,
+   "area_weak_label": 0.3163
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.3082,
+   "area_weak_label": 0.3399
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.3397,
+   "area_weak_label": 0.3486
+  }
+ ],
+ "GL-HP-006": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0322,
+   "area_weak_label": 0.0414
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0088,
+   "area_weak_label": 0.0438
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0303,
+   "area_weak_label": 0.049
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0499,
+   "area_weak_label": 0.0587
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0598,
+   "area_weak_label": 0.0552
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0557,
+   "area_weak_label": 0.0607
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.0717,
+   "area_weak_label": 0.0632
+  }
+ ],
+ "GL-HP-007": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.1381,
+   "area_weak_label": 0.1143
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.1418,
+   "area_weak_label": 0.1373
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.1421,
+   "area_weak_label": 0.1411
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.1437,
+   "area_weak_label": 0.1405
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.1412,
+   "area_weak_label": 0.1381
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.1495,
+   "area_weak_label": 0.1421
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.1544,
+   "area_weak_label": 0.1446
+  }
+ ],
+ "GL-HP-008": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.1144,
+   "area_weak_label": 0.1237
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.122,
+   "area_weak_label": 0.119
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.1208,
+   "area_weak_label": 0.1189
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.1213,
+   "area_weak_label": 0.133
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.127,
+   "area_weak_label": 0.1259
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.1246,
+   "area_weak_label": 0.1177
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.132,
+   "area_weak_label": 0.1274
+  }
+ ],
+ "GL-HP-009": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0721,
+   "area_weak_label": 0.054
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0673,
+   "area_weak_label": 0.0578
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0794,
+   "area_weak_label": 0.0713
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0723,
+   "area_weak_label": 0.0614
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0744,
+   "area_weak_label": 0.0664
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.0708,
+   "area_weak_label": 0.0645
+  }
+ ],
+ "GL-HP-010": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0597,
+   "area_weak_label": 0.0527
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0578,
+   "area_weak_label": 0.049
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0578,
+   "area_weak_label": 0.0481
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0611,
+   "area_weak_label": 0.0486
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0583,
+   "area_weak_label": 0.0503
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0592,
+   "area_weak_label": 0.0455
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.06,
+   "area_weak_label": 0.0524
+  }
+ ],
+ "GL-HP-011": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0466,
+   "area_weak_label": 0.0569
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0643,
+   "area_weak_label": 0.0589
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0593,
+   "area_weak_label": 0.0621
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0553,
+   "area_weak_label": 0.0592
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0057,
+   "area_weak_label": 0.0213
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0608,
+   "area_weak_label": 0.0594
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.0673,
+   "area_weak_label": 0.0624
+  }
+ ],
+ "GL-HP-012": [
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.1126,
+   "area_weak_label": 0.1087
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.1122,
+   "area_weak_label": 0.1108
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.1011,
+   "area_weak_label": 0.1155
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.112,
+   "area_weak_label": 0.1145
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.1126,
+   "area_weak_label": 0.1114
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.1151,
+   "area_weak_label": 0.1121
+  }
+ ],
+ "GL-HP-013": [
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0562,
+   "area_weak_label": 0.0525
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0522,
+   "area_weak_label": 0.052
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0554,
+   "area_weak_label": 0.0528
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0555,
+   "area_weak_label": 0.0537
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0538,
+   "area_weak_label": 0.0524
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.0562,
+   "area_weak_label": 0.0533
+  }
+ ],
+ "GL-HP-015": [
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.1029,
+   "area_weak_label": 0.075
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.1133,
+   "area_weak_label": 0.1254
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.1292,
+   "area_weak_label": 0.1496
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.1277,
+   "area_weak_label": 0.1349
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.1308,
+   "area_weak_label": 0.1448
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.1329,
+   "area_weak_label": 0.1342
+  }
+ ],
+ "GL-HP-016": [
+  {
+   "date": "2018-09-30",
+   "year": 2018,
+   "area": 0.2302,
+   "area_weak_label": 0.2189
+  },
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.2597,
+   "area_weak_label": 0.2643
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.2426,
+   "area_weak_label": 0.244
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.2457,
+   "area_weak_label": 0.263
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.2535,
+   "area_weak_label": 0.2747
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.2334,
+   "area_weak_label": 0.2479
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.2548,
+   "area_weak_label": 0.2536
+  }
+ ],
+ "GL-HP-018": [
+  {
+   "date": "2018-09-30",
+   "year": 2018,
+   "area": 0.0481,
+   "area_weak_label": 0.0102
+  },
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0502,
+   "area_weak_label": 0.0572
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0631,
+   "area_weak_label": 0.0708
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.052,
+   "area_weak_label": 0.0661
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0665,
+   "area_weak_label": 0.0831
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0658,
+   "area_weak_label": 0.0813
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0744,
+   "area_weak_label": 0.085
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.0857,
+   "area_weak_label": 0.0973
+  }
+ ],
+ "GL-HP-019": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0828,
+   "area_weak_label": 0.0576
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.087,
+   "area_weak_label": 0.0764
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0821,
+   "area_weak_label": 0.01
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0883,
+   "area_weak_label": 0.0779
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0908,
+   "area_weak_label": 0.0794
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0909,
+   "area_weak_label": 0.0563
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.1042,
+   "area_weak_label": 0.089
+  }
+ ],
+ "GL-HP-020": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0641,
+   "area_weak_label": 0.0603
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0647,
+   "area_weak_label": 0.0657
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0666,
+   "area_weak_label": 0.0549
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0708,
+   "area_weak_label": 0.0689
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0706,
+   "area_weak_label": 0.0674
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0751,
+   "area_weak_label": 0.0697
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.0718,
+   "area_weak_label": 0.07
+  }
+ ],
+ "GL-HP-021": [
+  {
+   "date": "2019-09-30",
+   "year": 2019,
+   "area": 0.0952,
+   "area_weak_label": 0.0968
+  },
+  {
+   "date": "2020-09-30",
+   "year": 2020,
+   "area": 0.0961,
+   "area_weak_label": 0.0967
+  },
+  {
+   "date": "2021-09-30",
+   "year": 2021,
+   "area": 0.0961,
+   "area_weak_label": 0.0981
+  },
+  {
+   "date": "2022-09-30",
+   "year": 2022,
+   "area": 0.0986,
+   "area_weak_label": 0.098
+  },
+  {
+   "date": "2023-09-30",
+   "year": 2023,
+   "area": 0.0945,
+   "area_weak_label": 0.0878
+  },
+  {
+   "date": "2024-09-30",
+   "year": 2024,
+   "area": 0.0958,
+   "area_weak_label": 0.0936
+  },
+  {
+   "date": "2025-09-30",
+   "year": 2025,
+   "area": 0.0929,
+   "area_weak_label": 0.0949
+  }
+ ]
+}

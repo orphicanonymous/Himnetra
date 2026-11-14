@@ -1,0 +1,32 @@
+{
+ "results": [
+  {
+   "model": "U-Net (ResNet34)",
+   "arch": "unet",
+   "input_channels": "RGB + Sentinel-1 VV + DEM + slope",
+   "labels": "optical-index weak labels",
+   "iou": 0.871409533572509,
+   "dice": 0.9312868380113397,
+   "precision": 0.9531316574350022,
+   "recall": 0.9104209060725948,
+   "epoch": 13
+  },
+  {
+   "model": "DeepLabv3+ (ResNet34)",
+   "arch": "deeplab",
+   "input_channels": "RGB + Sentinel-1 VV + DEM + slope",
+   "labels": "optical-index weak labels",
+   "iou": 0.8506624513820826,
+   "dice": 0.9193058958394106,
+   "precision": 0.9670394627952388,
+   "recall": 0.8760629752597007,
+   "epoch": 9
+  }
+ ],
+ "best": "unet",
+ "val_lakes": [
+  "GL-HP-005",
+  "GL-HP-012",
+  "GL-HP-016"
+ ]
+}
