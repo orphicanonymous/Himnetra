@@ -1,38 +1,43 @@
-"""Empirical GLOF scenario numbers (volume, release, peak discharge).
-Downstream impact (extent / time-to-impact / settlements / roads) comes from data/flood_results.json,
-written by the flood-routing notebook. Until that file exists those fields are returned as null."""
+"""Serve prepared per-lake flood-routing results without generating estimates."""
 import datetime, json
 from pathlib import Path
 
-SCENARIO_FRACTION = {"MINOR": 0.10, "MODERATE": 0.30, "MAJOR": 0.60, "EXTREME": 1.00}   # share of lake volume released (assumption)
-DEFAULT_SEVERITY = {"MINOR": "LOW", "MODERATE": "MEDIUM", "MAJOR": "HIGH", "EXTREME": "EXTREME"}
+SCENARIOS = {"MINOR", "MODERATE", "MAJOR", "EXTREME"}
 
-def lake_volume_mm3(area_km2: float) -> float:
-    """Huggel et al. (2002) area-volume relation V[m3] = 0.104 * A[m2]^1.42 (note the units; verify against the paper).
-    Returns million m3 for an area in km2."""
-    return 0.104 * (max(area_km2, 0.0) * 1e6) ** 1.42 / 1e6
 
-def peak_discharge_m3s(release_mm3: float) -> float:
-    """Evans (1986) empirical peak discharge for moraine-dam failure, Qp = 0.72 * V[m3]^0.53 (verify against the paper)."""
-    return 0.72 * (release_mm3 * 1e6) ** 0.53
+class SimulationUnavailableError(Exception):
+    """Raised when no prepared routing output exists for a lake and scenario."""
 
-def simulate(lake: dict, scenario: str, severity: str | None, data_dir: Path) -> dict:
-    scenario = scenario if scenario in SCENARIO_FRACTION else "MAJOR"
-    vol = lake_volume_mm3(lake["currentArea"])
-    rel = vol * SCENARIO_FRACTION[scenario]
+
+class InvalidScenarioError(Exception):
+    """Raised when the requested scenario is not supported."""
+
+
+def simulate(lake: dict, scenario: str, data_dir: Path) -> dict:
+    if scenario not in SCENARIOS:
+        raise InvalidScenarioError(f"scenario must be one of {', '.join(sorted(SCENARIOS))}")
+
     down = {}
     f = data_dir / "flood_results.json"
+    if not f.exists():
+        f = Path(__file__).parent / "flood_results.json"
     if f.exists():
         down = json.loads(f.read_text()).get(lake["id"], {}).get(scenario, {})
+    if not down:
+        raise SimulationUnavailableError(
+            f"No prepared flood-routing result exists for lake {lake['id']} and scenario {scenario}."
+        )
+    if down.get("releaseMm3") is None or down.get("peakDischarge") is None:
+        raise SimulationUnavailableError(
+            f"Prepared flood-routing output for lake {lake['id']} and scenario {scenario} is incomplete."
+        )
+
     return {
         "id": f"SIM-{lake['id']}-{scenario}",
         "lakeId": lake["id"], "lakeName": lake["name"], "scenario": scenario,
-        "waterVolume": round(vol, 3), "estimatedRelease": round(rel, 3),
-        "peakDischarge": round(peak_discharge_m3s(rel)),
-        "breachSeverity": severity or DEFAULT_SEVERITY[scenario],
+        "estimatedRelease": down["releaseMm3"], "peakDischarge": down["peakDischarge"],
         "floodExtent": down.get("floodExtent"), "timeToImpact": down.get("timeToImpact"),
         "affectedSettlements": down.get("affectedSettlements"), "affectedRoads": down.get("affectedRoads"),
-        "downstreamAvailable": bool(down),
-        "riskZone": lake["riskLevel"], "simulationDuration": 6, "status": "COMPLETE",
+        "riskZone": lake["riskLevel"], "status": "COMPLETE",
         "timestamp": datetime.datetime.now().isoformat(timespec="seconds"),
     }

@@ -13,6 +13,7 @@ import SatelliteData from './pages/SatelliteData';
 import Alerts from './pages/Alerts';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import FutureScope from './pages/FutureScope';
 
 export const App: React.FC = () => {
   return (
@@ -27,6 +28,7 @@ export const App: React.FC = () => {
           <Route path="/risk" element={<RiskIntelligence />} />
           <Route path="/flood" element={<FloodSimulation />} />
           <Route path="/alerts" element={<Alerts />} />
+          <Route path="/future-scope" element={<FutureScope />} />
           <Route path="/satellite" element={<SatelliteData />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />

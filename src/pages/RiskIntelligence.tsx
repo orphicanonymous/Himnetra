@@ -8,7 +8,7 @@ import {
 import { fetchLakes, fetchRiskAssessment } from '../services/api';
 import type { Lake, RiskAssessment } from '../types';
 import { RiskBadge } from '../components/ui/RiskBadge';
-import { DemoBanner } from '../components/ui';
+import { DemoBanner, PageHeader } from '../components/ui';
 import { getRiskColor, formatDateTime } from '../utils';
 import { showToast } from '../components/layout/AppLayout';
 
@@ -17,15 +17,27 @@ export const RiskIntelligence: React.FC = () => {
   const defaultLake = searchParams.get('lake');
 
   const [lakes, setLakes] = useState<Lake[]>([]);
-  const [selectedId, setSelectedId] = useState<string>(defaultLake ?? 'GL-HP-001');
+  const [selectedId, setSelectedId] = useState<string>('');
   const [risk, setRisk] = useState<RiskAssessment | null>(null);
   const [loadingRisk, setLoadingRisk] = useState(true);
 
   useEffect(() => {
-    fetchLakes().then(setLakes).catch(() => showToast('Could not load lakes from the server.', 'error'));
-  }, []);
+    fetchLakes().then(items => {
+      setLakes(items);
+      setSelectedId(current => current || (
+        defaultLake && items.some(lake => lake.id === defaultLake)
+          ? defaultLake
+          : items.find(lake => lake.riskLevel === 'CRITICAL' || lake.riskLevel === 'HIGH')?.id ?? items[0]?.id ?? ''
+      ));
+    }).catch(() => showToast('Could not load lakes from the server.', 'error'));
+  }, [defaultLake]);
 
   useEffect(() => {
+    if (!selectedId) {
+      setRisk(null);
+      setLoadingRisk(false);
+      return;
+    }
     setLoadingRisk(true);
     fetchRiskAssessment(selectedId)
       .then(setRisk)
@@ -47,19 +59,12 @@ export const RiskIntelligence: React.FC = () => {
 
   return (
     <div style={{ padding: 24, minHeight: '100%' }}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Brain size={18} style={{ color: 'var(--cyan)' }} />
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>AI Risk Intelligence</h1>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            AI-assisted assessment of glacial lake instability — prototype feature contributions.
-          </p>
-        </div>
-        <DemoBanner message="Prototype — Risk scores are demo outputs. Not scientifically validated." liveMessage="The risk score is a relative weighted ranking of the monitored lakes, not a calibrated probability." />
-      </div>
+      <PageHeader
+        title="Relative Risk Assessment"
+        description="Relative six-factor weighted assessment from prepared lake attributes."
+        icon={<Brain size={18} />}
+        actions={<DemoBanner message="Backend API not configured — no risk outputs are loaded." liveMessage="Scores are relative weighted rankings, not calibrated probabilities or live alerts." />}
+      />
 
       {/* Lake selector */}
       <div style={{
@@ -173,7 +178,7 @@ export const RiskIntelligence: React.FC = () => {
             }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>
                 Contributing Factors
-                <span className="demo-banner" style={{ marginLeft: 10, fontSize: 10 }}>Demo weights</span>
+                <span className="demo-banner" style={{ marginLeft: 10, fontSize: 10 }}>Prepared score factors</span>
               </div>
               {risk.factors.map((factor, idx) => {
                 const pct = (factor.contribution / 30) * 100;
@@ -209,7 +214,7 @@ export const RiskIntelligence: React.FC = () => {
             }}>
               <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Risk Factor Radar</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14 }}>
-                Relative contribution of each factor (demo values)
+                Relative contribution of each prepared score factor
               </div>
               <ResponsiveContainer width="100%" height={280}>
                 <RadarChart data={radarData}>
@@ -267,7 +272,7 @@ export const RiskIntelligence: React.FC = () => {
               <div className="flex items-start gap-6 mt-3">
                 <Info size={12} style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: 3 }} />
                 <p style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                  These factor weights are illustrative prototype values. Scientific validation requires integration with calibrated hydrological and meteorological data.
+                  This is a relative weighted score, not a calibrated hazard probability. It depends on prepared input attributes and is not a substitute for validated hydrological analysis.
                 </p>
               </div>
             </div>

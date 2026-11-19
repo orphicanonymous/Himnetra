@@ -3,7 +3,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Lake } from '../../types';
 import { getRiskColor } from '../../utils';
-import { fetchPolygons, IS_LIVE } from '../../services/api';
+import { fetchFloodPolygon, fetchPolygons, IS_LIVE } from '../../services/api';
+import type { FloodSimulation } from '../../types';
+import { getDashboardPreferences } from '../../services/preferences';
 import { useNavigate } from 'react-router-dom';
 
 // Fix Leaflet default icon issue with bundlers
@@ -22,6 +24,7 @@ interface GlofMapProps {
   showLayers?: boolean;
   showFloodExtent?: boolean;
   simulationLakeId?: string;
+  floodScenario?: FloodSimulation['scenario'];
 }
 
 const TILE_LAYERS = {
@@ -51,16 +54,19 @@ export const GlofMap: React.FC<GlofMapProps> = ({
   onLakeClick,
   height = '100%',
   showLayers = true,
+  showFloodExtent = false,
   simulationLakeId,
+  floodScenario,
 }) => {
   const mapRef = useRef<L.Map | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const markersRef = useRef<Record<string, L.CircleMarker>>({});
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const outlineRef = useRef<L.GeoJSON | null>(null);
+  const floodExtentRef = useRef<L.GeoJSON | null>(null);
   const navigate = useNavigate();
 
-  const [activeBase, setActiveBase] = useState<keyof typeof TILE_LAYERS>('terrain');
+  const [activeBase, setActiveBase] = useState<keyof typeof TILE_LAYERS>(() => getDashboardPreferences().defaultMap);
   const [layerVisibility, setLayerVisibility] = useState({
     lakes: true,
     riskZones: true,
@@ -134,6 +140,31 @@ export const GlofMap: React.FC<GlofMapProps> = ({
     return () => { cancelled = true; outlineRef.current?.remove(); };
   }, [lakes]);
 
+  useEffect(() => {
+    floodExtentRef.current?.remove();
+    floodExtentRef.current = null;
+    if (!IS_LIVE || !showFloodExtent || !layerVisibility.floodExtent || !simulationLakeId || !floodScenario || !mapRef.current) return;
+
+    let cancelled = false;
+    fetchFloodPolygon(simulationLakeId, floodScenario).then(fc => {
+      if (cancelled || !mapRef.current || fc.features.length === 0) return;
+      floodExtentRef.current = L.geoJSON(fc as never, {
+        style: {
+          color: '#f97316',
+          fillColor: '#f97316',
+          fillOpacity: 0.28,
+          weight: 1.5,
+        },
+      }).addTo(mapRef.current);
+    }).catch(error => console.warn('Could not load flood extent.', error));
+
+    return () => {
+      cancelled = true;
+      floodExtentRef.current?.remove();
+      floodExtentRef.current = null;
+    };
+  }, [showFloodExtent, layerVisibility.floodExtent, simulationLakeId, floodScenario]);
+
   // ── Lake markers ─────────────────────────────────────
   useEffect(() => {
     if (!mapRef.current) return;
@@ -168,18 +199,6 @@ export const GlofMap: React.FC<GlofMapProps> = ({
           weight: 1,
           dashArray: '4 6',
         }).addTo(mapRef.current!);
-      }
-
-      // Flood extent ring for simulation
-      if (layerVisibility.floodExtent && isSimLake) {
-        L.circle([lake.coordinates.lat, lake.coordinates.lng], {
-          radius: 18000,
-          color: '#f97316',
-          fillColor: '#f97316',
-          fillOpacity: 0.08,
-          weight: 1.5,
-          dashArray: '6 4',
-        }).addTo(mapRef.current!).bringToBack();
       }
 
       // Popup

@@ -6,7 +6,7 @@ import {
 import { fetchLakes } from '../services/api';
 import type { Lake, RiskLevel } from '../types';
 import { RiskBadge } from '../components/ui/RiskBadge';
-import { DemoBanner, Skeleton } from '../components/ui';
+import { DemoBanner, PageHeader, Skeleton } from '../components/ui';
 import { GlofMap } from '../components/maps/GlofMap';
 import { formatDate } from '../utils';
 import { showToast } from '../components/layout/AppLayout';
@@ -75,20 +75,13 @@ export const LakeMonitoring: React.FC = () => {
 
   return (
     <div style={{ padding: 24, height: '100%', display: 'flex', flexDirection: 'column', gap: 20 }}>
-      {/* Page header */}
-      <div className="flex items-start justify-between flex-wrap gap-3">
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-            Lake Monitoring
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            Track glacial lake boundaries and area changes from satellite imagery.
-          </p>
-        </div>
-        <DemoBanner message="Demo Data — Prototype dataset, not real-time satellite measurements." />
-      </div>
+      <PageHeader
+        title="Lake Monitoring"
+        description="Track glacial lake boundaries and area changes from satellite imagery."
+        actions={<DemoBanner message="Backend API not configured — no lake records are loaded." liveMessage="Displays prepared lake outputs; there is no real-time satellite stream." />}
+      />
 
-      <div style={{ display: 'grid', gridTemplateColumns: showFilters ? '220px 1fr' : '1fr', gap: 20, flex: 1, minHeight: 0 }}>
+      <div className="lake-monitoring-layout" style={{ display: 'grid', gridTemplateColumns: showFilters ? '220px 1fr' : '1fr', gap: 20, flex: 1, minHeight: 0 }}>
         {/* ── Filter Panel ─────────────────────────── */}
         {showFilters && (
           <div style={{

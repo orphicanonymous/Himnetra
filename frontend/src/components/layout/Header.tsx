@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Bell, Search, User, MapPin, Wifi, ChevronDown, X, ExternalLink,
+  Bell, Search, User, MapPin, ChevronDown, X, ExternalLink,
 } from 'lucide-react';
 import type { Notification } from '../../types';
 import { timeAgo } from '../../utils';
-import { StatusDot } from '../ui';
 
 interface HeaderProps {
   notifications: Notification[];
@@ -41,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ notifications, onMarkRead }) => 
   };
 
   return (
-    <header style={{
+    <header className="app-header" style={{
       background: 'var(--bg-surface)',
       borderBottom: '1px solid var(--border)',
       padding: '0 24px',
@@ -57,24 +56,17 @@ export const Header: React.FC<HeaderProps> = ({ notifications, onMarkRead }) => 
       {/* Location */}
       <div className="flex items-center gap-2" style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
         <MapPin size={14} style={{ color: 'var(--cyan)' }} />
-        <span style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Himachal Pradesh, India</span>
+        <span className="app-header__location" style={{ color: 'var(--text-primary)', fontWeight: 500 }}>Himachal Pradesh, India</span>
       </div>
 
-      {/* Status */}
+      {/* Data scope */}
       <div className="flex items-center gap-2" style={{
-        background: 'rgba(34,197,94,0.08)',
-        border: '1px solid rgba(34,197,94,0.2)',
+        background: 'rgba(6,182,212,0.08)',
+        border: '1px solid rgba(6,182,212,0.2)',
         borderRadius: 6,
         padding: '4px 10px',
       }}>
-        <StatusDot status="OPERATIONAL" />
-        <span style={{ color: '#22c55e', fontSize: 12, fontWeight: 500 }}>Monitoring Active</span>
-      </div>
-
-      {/* Last update */}
-      <div className="hidden md:flex items-center gap-1.5" style={{ color: 'var(--text-muted)', fontSize: 12 }}>
-        <Wifi size={13} style={{ color: 'var(--cyan-dim)' }} />
-        Last updated: <span style={{ color: 'var(--text-secondary)' }}>2 hours ago</span>
+        <span style={{ color: 'var(--cyan)', fontSize: 12, fontWeight: 500 }}>Prepared dataset</span>
       </div>
 
       {/* Spacer */}
@@ -83,7 +75,7 @@ export const Header: React.FC<HeaderProps> = ({ notifications, onMarkRead }) => 
       {/* Search */}
       <div style={{ position: 'relative' }}>
         {showSearch ? (
-          <div className="animate-fade-in flex items-center gap-2" style={{
+          <div className="app-header__search animate-fade-in flex items-center gap-2" style={{
             background: 'var(--bg-elevated)',
             border: '1px solid var(--border)',
             borderRadius: 8,

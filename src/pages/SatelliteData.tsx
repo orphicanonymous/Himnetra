@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { Satellite, CheckCircle } from 'lucide-react';
+import { Satellite } from 'lucide-react';
 import { fetchSatelliteSources, fetchObservations } from '../services/api';
 import type { SatelliteSource, SatelliteObservation } from '../types';
-import { DemoBanner } from '../components/ui';
-import { formatDateTime, formatDate } from '../utils';
+import { DemoBanner, PageHeader } from '../components/ui';
+import { formatDate } from '../utils';
 import { showToast } from '../components/layout/AppLayout';
 
 const PIPELINE_STEPS = [
-  { id: 1, label: 'Satellite Acquisition', sub: 'Sentinel-1 / Sentinel-2 imagery download', status: 'COMPLETE' as const },
-  { id: 2, label: 'Preprocessing', sub: 'Atmospheric correction, orthorectification, co-registration', status: 'COMPLETE' as const },
-  { id: 3, label: 'NDWI / SAR Processing', sub: 'Normalized Difference Water Index computation, backscatter analysis', status: 'COMPLETE' as const },
-  { id: 4, label: 'AI Segmentation (U-Net)', sub: 'Deep learning lake boundary extraction', status: 'COMPLETE' as const },
-  { id: 5, label: 'Change Detection', sub: 'Multi-temporal area comparison, anomaly flagging', status: 'COMPLETE' as const },
-  { id: 6, label: 'Risk Analysis', sub: 'ML risk scoring, alert generation', status: 'COMPLETE' as const },
+  { id: 1, label: 'Satellite Acquisition', sub: 'Sentinel-1 / Sentinel-2 imagery download' },
+  { id: 2, label: 'Preprocessing', sub: 'Atmospheric correction, orthorectification, co-registration' },
+  { id: 3, label: 'NDWI / SAR Processing', sub: 'Normalized Difference Water Index computation, backscatter analysis' },
+  { id: 4, label: 'AI Segmentation (U-Net)', sub: 'Deep learning lake boundary extraction' },
+  { id: 5, label: 'Change Detection', sub: 'Multi-temporal area comparison, anomaly flagging' },
+  { id: 6, label: 'Risk Analysis', sub: 'Weighted risk scoring and rule-based alert generation' },
 ];
 
 export const SatelliteData: React.FC = () => {
@@ -27,30 +27,17 @@ export const SatelliteData: React.FC = () => {
       .catch(() => showToast('Could not load satellite data from the server.', 'error'));
   }, []);
 
-  const statusColor = (s: SatelliteSource['status']) => {
-    switch (s) {
-      case 'AVAILABLE': return '#22c55e';
-      case 'DEMO': return '#f59e0b';
-      case 'DEGRADED': return '#f97316';
-      case 'UNAVAILABLE': return '#ef4444';
-    }
-  };
-
   return (
     <div style={{ padding: 24, minHeight: '100%' }}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Satellite size={18} style={{ color: 'var(--cyan)' }} />
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>Satellite Intelligence</h1>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            Data sources, acquisition status, and processing pipeline for HIMNETRA monitoring.
-          </p>
-        </div>
-        <DemoBanner message="Demo — Live ESA data feed not yet connected. Showing metadata only." />
-      </div>
+      <PageHeader
+        title="Satellite Intelligence"
+        description="Input-source metadata and the prepared dataset records available to HIMNETRA."
+        icon={<Satellite size={18} />}
+        actions={<DemoBanner
+          message="Backend API not configured — no source records are loaded."
+          liveMessage="Source cards show reference metadata. Acquisition records appear only when exported in the prepared dataset."
+        />}
+      />
 
       {/* Sources grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, marginBottom: 28 }}>
@@ -67,12 +54,12 @@ export const SatelliteData: React.FC = () => {
               </div>
               <span style={{
                 fontSize: 10, fontWeight: 600, padding: '3px 10px', borderRadius: 99,
-                color: statusColor(src.status),
-                background: `${statusColor(src.status)}15`,
-                border: `1px solid ${statusColor(src.status)}30`,
+                color: 'var(--cyan)',
+                background: 'rgba(6,182,212,0.08)',
+                border: '1px solid rgba(6,182,212,0.2)',
                 letterSpacing: '0.06em',
               }}>
-                {src.status === 'DEMO' ? 'DEMO MODE' : src.status}
+                INPUT SOURCE
               </span>
             </div>
 
@@ -90,11 +77,6 @@ export const SatelliteData: React.FC = () => {
               ))}
             </div>
 
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-              Last acquisition: <span style={{ color: 'var(--text-secondary)' }}>
-                {src.type === 'DEM' ? formatDate(src.lastAcquisition) : formatDateTime(src.lastAcquisition)}
-              </span>
-            </div>
           </div>
         ))}
       </div>
@@ -106,7 +88,7 @@ export const SatelliteData: React.FC = () => {
       }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 4 }}>Processing Pipeline</div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 24 }}>
-          Satellite-to-alert data flow — prototype architecture
+          Reference workflow — these steps are not running as a live processing job
         </div>
 
         <div style={{ position: 'relative' }}>
@@ -136,7 +118,7 @@ export const SatelliteData: React.FC = () => {
                 <div style={{ paddingTop: 8 }}>
                   <div className="flex items-center gap-2">
                     <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{step.label}</span>
-                    <CheckCircle size={14} style={{ color: '#22c55e' }} />
+                    <span style={{ fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>WORKFLOW STEP</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>{step.sub}</div>
                 </div>
@@ -149,7 +131,7 @@ export const SatelliteData: React.FC = () => {
       {/* Recent Observations */}
       <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
         <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)' }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Recent Acquisitions</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Exported Acquisition Records</span>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
@@ -165,6 +147,13 @@ export const SatelliteData: React.FC = () => {
               </tr>
             </thead>
             <tbody>
+              {observations.length === 0 && (
+                <tr>
+                  <td colSpan={7} style={{ padding: 28, textAlign: 'center', color: 'var(--text-muted)' }}>
+                    No acquisition-level records are included in the prepared dataset.
+                  </td>
+                </tr>
+              )}
               {observations.map(obs => (
                 <tr
                   key={obs.id}

@@ -4,7 +4,7 @@ import { Bell, CheckCircle, Eye, MapPin, ArrowUpRight } from 'lucide-react';
 import { fetchAlerts, acknowledgeAlert } from '../services/api';
 import type { Alert, RiskLevel } from '../types';
 import { RiskBadge } from '../components/ui/RiskBadge';
-import { DemoBanner } from '../components/ui';
+import { DemoBanner, PageHeader, StatCard } from '../components/ui';
 import { formatDateTime, timeAgo, getRiskColor } from '../utils';
 import { showToast } from '../components/layout/AppLayout';
 
@@ -47,19 +47,12 @@ export const AlertsPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24, minHeight: '100%' }}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Bell size={18} style={{ color: 'var(--cyan)' }} />
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>Early Warning & Alerts</h1>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            AI-detected anomalies and risk escalations for monitored glacial lakes.
-          </p>
-        </div>
-        <DemoBanner message="Demo Alerts — Prototype notifications, not real-time detections." liveMessage="Alerts are computed from the latest lake data (risk level, area change). Verify on the ground before acting." />
-      </div>
+      <PageHeader
+        title="Early Warning & Alerts"
+        description="AI-detected anomalies and risk escalations for monitored glacial lakes."
+        icon={<Bell size={18} />}
+        actions={<DemoBanner message="Backend API not configured — no alert records are loaded." liveMessage="Alerts are rule-based from prepared lake and time-series outputs; they are not generated from a live feed. Verify on the ground before acting." />}
+      />
 
       {/* Stat cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14, marginBottom: 24 }}>
@@ -69,10 +62,7 @@ export const AlertsPage: React.FC = () => {
           { label: 'High Risk', val: counts.high, color: '#f97316' },
           { label: 'Resolved', val: counts.resolved, color: '#22c55e' },
         ].map(({ label, val, color }) => (
-          <div key={label} className="himnetra-card" style={{ padding: '14px 16px' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1, marginBottom: 6 }}>{val}</div>
-            <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500 }}>{label}</div>
-          </div>
+          <StatCard key={label} value={val} label={label} accent={color} compact />
         ))}
       </div>
 

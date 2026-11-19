@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard, Layers, Brain, Waves, Bell, Satellite, FileText,
+  Layers, Brain, Waves, Bell, Satellite, FileText, Radio,
   Settings, HelpCircle, ChevronLeft, ChevronRight, Mountain,
 } from 'lucide-react';
 import { StatusDot } from '../ui';
 import { fetchSystemStatus, IS_LIVE } from '../../services/api';
 import type { SystemService } from '../../types';
-import { MOCK_SYSTEM_SERVICES } from '../../services/mockData';
 
 const NAV_ITEMS = [
-  { path: '/dashboard',   label: 'Overview',         icon: LayoutDashboard },
+  { path: '/future-scope', label: 'Future Scope',     icon: Radio },
   { path: '/lakes',       label: 'Lake Monitoring',  icon: Layers },
   { path: '/risk',        label: 'Risk Intelligence', icon: Brain },
   { path: '/flood',       label: 'Flood Simulation', icon: Waves },
@@ -30,14 +29,22 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
-  const [services, setServices] = useState<SystemService[]>(MOCK_SYSTEM_SERVICES);
+  const [services, setServices] = useState<SystemService[]>([]);
   const [statusUnavailable, setStatusUnavailable] = useState(false);
   useEffect(() => {
+    if (!IS_LIVE) return;
     fetchSystemStatus()
       .then(setServices)
       .catch(() => setStatusUnavailable(true));
   }, []);
-  const allOperational = !statusUnavailable && services.every(s => s.status === 'OPERATIONAL');
+  const allOperational = IS_LIVE && !statusUnavailable && services.length > 0 && services.every(s => s.status === 'OPERATIONAL');
+  const statusLabel = !IS_LIVE
+    ? 'Backend API not configured'
+    : statusUnavailable
+    ? 'Backend status unavailable'
+      : allOperational
+        ? 'Prepared-data services operational'
+        : 'Degraded services';
 
   return (
     <aside style={{
@@ -160,14 +167,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
           ))}
           <div style={{
             marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border-subtle)',
-            fontSize: 10, color: allOperational ? '#22c55e' : '#f59e0b',
+            fontSize: 10, color: allOperational ? '#22c55e' : !IS_LIVE ? 'var(--text-muted)' : '#f59e0b',
             display: 'flex', alignItems: 'center', gap: 4,
           }}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />
-            {statusUnavailable ? 'Backend status unavailable' : allOperational ? 'All systems operational' : 'Degraded services'}
+            {statusLabel}
           </div>
           <div style={{ marginTop: 6, fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>
-            {statusUnavailable ? 'Could not load live system status' : IS_LIVE ? 'LIVE BACKEND' : 'DEMO MODE — backend not connected'}
+            {!IS_LIVE ? 'NO DATA SOURCE CONFIGURED' : statusUnavailable ? 'Could not load backend status' : 'PREPARED-DATA API'}
           </div>
         </div>
       )}

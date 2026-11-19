@@ -1,15 +1,15 @@
 import { IS_LIVE } from '../../services/api';
 import React from 'react';
+export { Button, PageFrame, PageHeader, SectionCard, StatCard } from './Page';
 
 export const DemoBanner: React.FC<{ message?: string; liveMessage?: string }> = ({
-  message = 'DEMO MODE — Values shown are prototype/mock data. Live satellite & backend services not yet connected.',
+  message = 'Backend API is not configured — no pipeline data is available.',
   liveMessage,
 }) => {
-  // With the backend connected the banner is hidden, unless the page gives a note that still applies.
   if (IS_LIVE && !liveMessage) return null;
   return (
     <div className="demo-banner flex items-center gap-2">
-      <span style={{ fontWeight: 700, letterSpacing: '0.08em' }}>{IS_LIVE ? 'ℹ NOTE' : '⬡ DEMO'}</span>
+      <span style={{ fontWeight: 700, letterSpacing: '0.08em' }}>{IS_LIVE ? 'ℹ NOTE' : 'NO DATA'}</span>
       <span>{IS_LIVE ? liveMessage : message}</span>
     </div>
   );

@@ -4,7 +4,7 @@ import { Waves, Play, AlertTriangle, CheckCircle, Loader, Info } from 'lucide-re
 import { fetchLakes, fetchFloodSimulation, runFloodSimulation, IS_LIVE } from '../services/api';
 import type { Lake, FloodSimulation } from '../types';
 import { RiskBadge } from '../components/ui/RiskBadge';
-import { DemoBanner } from '../components/ui';
+import { DemoBanner, PageHeader } from '../components/ui';
 import { GlofMap } from '../components/maps/GlofMap';
 import { formatDateTime, getRiskColor } from '../utils';
 import { showToast } from '../components/layout/AppLayout';
@@ -13,25 +13,31 @@ const fmtN = (v: number | null | undefined, d = 0, unit = '') =>
   v == null ? '—' : `${v.toLocaleString(undefined, { maximumFractionDigits: d })}${unit}`;
 
 const SCENARIOS = ['MINOR', 'MODERATE', 'MAJOR', 'EXTREME'] as const;
-const SEVERITIES = ['LOW', 'MEDIUM', 'HIGH', 'EXTREME'] as const;
 
 export const FloodSimulationPage: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const defaultLake = searchParams.get('lake') ?? 'GL-HP-001';
+  const defaultLake = searchParams.get('lake');
 
   const [lakes, setLakes] = useState<Lake[]>([]);
-  const [selectedId, setSelectedId] = useState(defaultLake);
+  const [selectedId, setSelectedId] = useState('');
   const [scenario, setScenario] = useState<typeof SCENARIOS[number]>('MAJOR');
-  const [severity, setSeverity] = useState<typeof SEVERITIES[number]>('HIGH');
   const [simulation, setSimulation] = useState<FloodSimulation | null>(null);
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
-    fetchLakes().then(setLakes).catch(() => showToast('Could not load lakes from the server.', 'error'));
-  }, []);
+    fetchLakes().then(items => {
+      setLakes(items);
+      setSelectedId(current => current || (
+        defaultLake && items.some(lake => lake.id === defaultLake)
+          ? defaultLake
+          : items[0]?.id ?? ''
+      ));
+    }).catch(() => showToast('Could not load lakes from the server.', 'error'));
+  }, [defaultLake]);
 
   useEffect(() => {
     setSimulation(null);
+    if (!selectedId) return;
     fetchFloodSimulation(selectedId)
       .then(setSimulation)
       .catch(() => showToast('Could not load the flood map from the server.', 'error'));
@@ -43,11 +49,11 @@ export const FloodSimulationPage: React.FC = () => {
     setRunning(true);
     setSimulation(null);
     try {
-      const result = await runFloodSimulation(selectedId, { scenario, breachSeverity: severity });
+      const result = await runFloodSimulation(selectedId, { scenario });
       setSimulation(result);
-      showToast('Simulation complete — results updated below.', 'success');
-    } catch {
-      showToast('Simulation failed — check connection.', 'error');
+      showToast('Prepared routing results loaded.', 'success');
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Could not load prepared routing results.', 'error');
     } finally {
       setRunning(false);
     }
@@ -57,21 +63,14 @@ export const FloodSimulationPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24, minHeight: '100%' }}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <Waves size={18} style={{ color: '#f97316' }} />
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>Flood Propagation Simulation</h1>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            Visualize potential downstream flood extent after a hypothetical glacial lake breach.
-          </p>
-        </div>
-        <DemoBanner message="Scenario / Simulation — DEM-based prototype, not a validated hydrodynamic model." liveMessage="Scenario volumes use empirical relations (Huggel 2002, Evans 1986). Downstream extent and time-to-impact show once flood-routing results are added. Not a validated hydrodynamic model." />
-      </div>
+      <PageHeader
+        title="Flood Propagation Simulation"
+        description="Visualize potential downstream flood extent after a hypothetical glacial lake breach."
+        icon={<Waves size={18} />}
+        actions={<DemoBanner message="Backend API not configured — no scenario results are loaded." liveMessage="Only existing per-lake flood-routing outputs are shown. No values are estimated when an output is missing; these are not trained-model predictions or validated forecasts." />}
+      />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, minHeight: 600 }}>
+      <div className="flood-simulation-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, minHeight: 600 }}>
         {/* Map */}
         <div style={{
           background: 'var(--bg-card)', border: '1px solid var(--border)',
@@ -178,31 +177,10 @@ export const FloodSimulationPage: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>Breach Severity</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 6 }}>
-                {SEVERITIES.map(s => (
-                  <button
-                    key={s}
-                    onClick={() => setSeverity(s)}
-                    style={{
-                      padding: '7px', borderRadius: 7, fontSize: 12, cursor: 'pointer',
-                      background: severity === s ? 'rgba(239,68,68,0.1)' : 'var(--bg-elevated)',
-                      border: `1px solid ${severity === s ? 'rgba(239,68,68,0.4)' : 'var(--border)'}`,
-                      color: severity === s ? '#ef4444' : 'var(--text-secondary)',
-                      fontFamily: 'Inter,sans-serif', transition: 'all 0.15s',
-                    }}
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6, marginBottom: 16 }}>
               <Info size={12} style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: 3 }} />
               <p style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                Volume and release calculated from lake area and DEM. Results are scenario estimates only.
+                Results are loaded only when a prepared output exists for this lake and scenario.
               </p>
             </div>
 
@@ -222,6 +200,11 @@ export const FloodSimulationPage: React.FC = () => {
             >
               {running ? <><Loader size={15} className="animate-spin" /> Running Simulation…</> : <><Play size={15} /> Run Simulation</>}
             </button>
+            {!simulation && !running && selectedId && IS_LIVE && (
+              <p style={{ marginTop: 10, fontSize: 11, color: 'var(--text-muted)' }}>
+                No saved output is available. Running a scenario succeeds only if a prepared routing result exists.
+              </p>
+            )}
           </div>
 
           {/* Results */}
@@ -240,18 +223,11 @@ export const FloodSimulationPage: React.FC = () => {
               <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12 }}>
                 {formatDateTime(simulation.timestamp)} · {simulation.scenario} scenario
               </div>
-              {IS_LIVE && simulation.downstreamAvailable === false && (
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 10 }}>
-                  Downstream extent, time to impact, settlements and roads appear once the flood-routing results are added.
-                </div>
-              )}
-
               {[
                 { label: 'Estimated Flood Extent', val: fmtN(simulation.floodExtent, 1, ' km²'), warn: true },
                 { label: 'Time to Impact', val: fmtN(simulation.timeToImpact, 0, ' minutes'), warn: true },
-                { label: 'Water Volume (lake)', val: `${simulation.waterVolume.toFixed(1)} M m³` },
-                { label: 'Estimated Release', val: `${simulation.estimatedRelease.toFixed(1)} M m³`, warn: true },
-                { label: 'Peak Discharge (empirical)', val: fmtN(simulation.peakDischarge, 0, ' m³/s') },
+                { label: 'Prepared Release Volume', val: fmtN(simulation.estimatedRelease, 2, ' M m³'), warn: true },
+                { label: 'Prepared Peak Discharge', val: fmtN(simulation.peakDischarge, 0, ' m³/s') },
                 { label: 'Potentially Affected Settlements', val: fmtN(simulation.affectedSettlements), warn: true },
                 { label: 'Affected Roads', val: fmtN(simulation.affectedRoads, 1, ' km'), warn: false },
               ].map(({ label, val, warn }) => (
@@ -271,7 +247,7 @@ export const FloodSimulationPage: React.FC = () => {
               <div style={{ marginTop: 14, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
                 <AlertTriangle size={12} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 3 }} />
                 <p style={{ fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                  These are illustrative scenario estimates. Actual GLOF impact depends on breach dynamics, channel morphology, and real-time hydrological conditions.
+                  These prepared routing outputs are not trained-model predictions or validated forecasts. Actual impact requires validated hydrodynamic modeling and current field conditions.
                 </p>
               </div>
 

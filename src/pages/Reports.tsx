@@ -4,7 +4,7 @@ import {
 } from 'lucide-react';
 import { fetchReports, generateReport, reportDownloadUrl, IS_LIVE } from '../services/api';
 import type { Report } from '../types';
-import { DemoBanner } from '../components/ui';
+import { DemoBanner, PageHeader } from '../components/ui';
 import { formatDateTime } from '../utils';
 import { showToast } from '../components/layout/AppLayout';
 
@@ -41,8 +41,8 @@ export const Reports: React.FC = () => {
   };
 
   const handleDownload = (report: Report) => {
-    if (IS_LIVE) { window.open(reportDownloadUrl(report.id), '_blank'); return; }
-    showToast(`Downloading "${report.title}" — demo mode, no actual file.`, 'info');
+    if (!IS_LIVE) return;
+    window.open(reportDownloadUrl(report.id), '_blank');
   };
 
   const statusColor = (s: Report['status']) => {
@@ -63,19 +63,12 @@ export const Reports: React.FC = () => {
 
   return (
     <div style={{ padding: 24, minHeight: '100%' }}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <FileText size={18} style={{ color: 'var(--cyan)' }} />
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>Administrative Reports</h1>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            Generate, view, and download monitoring reports for GLOF risk assessment and lake analysis.
-          </p>
-        </div>
-        <DemoBanner message="Demo — PDF generation not connected. Simulated output only." />
-      </div>
+      <PageHeader
+        title="Administrative Reports"
+        description="Generate, view, and download monitoring reports for GLOF risk assessment and lake analysis."
+        icon={<FileText size={18} />}
+        actions={<DemoBanner message="Backend API not configured — reports are unavailable." liveMessage="Reports are created by the backend from prepared dataset outputs." />}
+      />
 
       {/* Generate Report cards */}
       <div style={{ marginBottom: 28 }}>
@@ -99,7 +92,7 @@ export const Reports: React.FC = () => {
                 <span style={{ fontSize: 22 }}>{icon}</span>
                 <button
                   onClick={() => handleGenerate(type)}
-                  disabled={generating === type}
+                  disabled={generating === type || !IS_LIVE}
                   style={{
                     display: 'flex', alignItems: 'center', gap: 5,
                     padding: '6px 12px', borderRadius: 7,
@@ -107,7 +100,7 @@ export const Reports: React.FC = () => {
                     border: '1px solid rgba(6,182,212,0.3)',
                     color: 'var(--cyan)', fontSize: 12, cursor: 'pointer',
                     fontFamily: 'Inter,sans-serif',
-                    opacity: generating === type ? 0.7 : 1,
+                    opacity: generating === type || !IS_LIVE ? 0.7 : 1,
                   }}
                 >
                   {generating === type
@@ -157,14 +150,14 @@ export const Reports: React.FC = () => {
 
                   <button
                     onClick={() => handleDownload(report)}
-                    disabled={report.status !== 'READY'}
+                    disabled={report.status !== 'READY' || !IS_LIVE}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 5,
                       padding: '7px 14px', borderRadius: 7,
                       background: report.status === 'READY' ? 'rgba(6,182,212,0.1)' : 'var(--bg-elevated)',
                       border: `1px solid ${report.status === 'READY' ? 'rgba(6,182,212,0.3)' : 'var(--border)'}`,
-                      color: report.status === 'READY' ? 'var(--cyan)' : 'var(--text-muted)',
-                      fontSize: 12, cursor: report.status === 'READY' ? 'pointer' : 'not-allowed',
+                      color: report.status === 'READY' && IS_LIVE ? 'var(--cyan)' : 'var(--text-muted)',
+                      fontSize: 12, cursor: report.status === 'READY' && IS_LIVE ? 'pointer' : 'not-allowed',
                       fontFamily: 'Inter,sans-serif',
                     }}
                   >

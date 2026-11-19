@@ -1,38 +1,55 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Mountain, Satellite, Brain, Waves, Bell, ArrowRight,
   ShieldAlert, Activity, Layers, ChevronRight,
   MapPin, Database, Cpu, GitMerge,
 } from 'lucide-react';
+import { fetchLakes, IS_LIVE } from '../services/api';
+import type { Lake } from '../types';
+import { getRiskColor } from '../utils';
+import { GlofMap } from '../components/maps/GlofMap';
 
 const TECH_STACK = [
   { name: 'Sentinel-1', sub: 'C-SAR Imagery' },
   { name: 'Sentinel-2', sub: 'Multispectral' },
   { name: 'SRTM DEM', sub: 'Elevation Model' },
   { name: 'U-Net', sub: 'AI Segmentation' },
-  { name: 'Random Forest', sub: 'Risk Scoring' },
+  { name: 'Weighted Score', sub: 'Relative Risk Ranking' },
   { name: 'WebGIS', sub: 'Leaflet + React' },
 ];
 
 const HOW_IT_WORKS = [
-  { step: '01', icon: Satellite, title: 'Satellite Data', desc: 'Sentinel-1 SAR and Sentinel-2 MSI imagery acquired over Himachal Pradesh glacial zones.' },
-  { step: '02', icon: Layers, title: 'Lake Detection', desc: 'NDWI and deep-learning U-Net model segments glacial lake boundaries from multi-band imagery.' },
-  { step: '03', icon: Activity, title: 'Change Analysis', desc: 'Multi-temporal analysis tracks lake area expansion, boundary changes, and seasonal anomalies.' },
-  { step: '04', icon: Brain, title: 'AI Risk Assessment', desc: 'Ensemble ML model (Random Forest) computes risk scores incorporating terrain, growth rate, and hydrology.' },
-  { step: '05', icon: Waves, title: 'Flood & Early Warning', desc: 'DEM-based flood propagation simulation estimates downstream impact; alerts dispatched to administrators.' },
+  { step: '01', icon: Satellite, title: 'Satellite Data', desc: 'A manually run Colab workflow processes satellite and climate inputs; the app serves prepared snapshots, not a live feed.' },
+  { step: '02', icon: Layers, title: 'Lake Detection', desc: 'The notebook defines U-Net segmentation; the API serves exported boundaries and metrics.' },
+  { step: '03', icon: Activity, title: 'Change Analysis', desc: 'Stored multi-year area records support growth comparisons and rule-based anomaly flags.' },
+  { step: '04', icon: Brain, title: 'Relative Risk Assessment', desc: 'A normalized six-factor weighted formula ranks monitored lakes; scores are not calibrated probabilities.' },
+  { step: '05', icon: Waves, title: 'Scenario & Alerts', desc: 'Only saved per-lake routing outputs are shown; missing results are unavailable. Subscriber notices require manual confirmation.' },
 ];
 
 const FEATURES = [
-  { icon: Satellite, title: 'Satellite Monitoring', desc: 'Continuous monitoring using ESA Sentinel-1 (SAR) and Sentinel-2 (MSI) imagery with 5–12 day revisit cycles.' },
-  { icon: Brain, title: 'AI Lake Detection', desc: 'U-Net convolutional neural network segments lake boundaries achieving high-accuracy delineation (IoU > 85%).' },
-  { icon: Activity, title: 'Risk Intelligence', desc: 'Multi-factor AI risk model incorporating lake growth rate, terrain exposure, precipitation anomaly, and historical trends.' },
-  { icon: Waves, title: 'Flood Simulation', desc: 'DEM-based hydrodynamic simulation estimates flood propagation extent and time-to-impact for breach scenarios.' },
-  { icon: Bell, title: 'Early Warning', desc: 'Automated alert system flags anomalies, rapid expansions, and critical risk levels for administrative response.' },
-  { icon: MapPin, title: 'WebGIS Dashboard', desc: 'Interactive GIS platform with satellite imagery, risk overlays, flood maps, and lake-level analytics.' },
+  { icon: Satellite, title: 'Satellite Data', desc: 'Prepared Sentinel-derived lake snapshots are available; acquisition and refresh are not automated in the running app.' },
+  { icon: Brain, title: 'Lake Segmentation', desc: 'The supplied pipeline defines U-Net and DeepLabv3+ training and inference; exported results are served as prepared data.' },
+  { icon: Activity, title: 'Relative Risk Ranking', desc: 'Six normalized factors contribute to a weighted score; it is a relative ranking, not an absolute probability.' },
+  { icon: Waves, title: 'Flood Scenarios', desc: 'The app displays existing per-lake routing outputs only; it does not estimate missing values. These are not trained-model predictions or validated forecasts.' },
+  { icon: Bell, title: 'Alerts', desc: 'Rule-based alerts use prepared lake data. Community email/SMS notices are manually dispatched when providers are configured.' },
+  { icon: MapPin, title: 'WebGIS Dashboard', desc: 'Interactive lake maps, prepared boundary and flood overlays, risk summaries, and historical analytics.' },
 ];
 
 export const Landing: React.FC = () => {
+  const [lakes, setLakes] = useState<Lake[]>([]);
+  const [datasetLoaded, setDatasetLoaded] = useState(false);
+
+  useEffect(() => {
+    fetchLakes().then(data => {
+      setLakes(data);
+      setDatasetLoaded(true);
+    }).catch(() => setDatasetLoaded(true));
+  }, []);
+
+  const districtCount = new Set(lakes.map(lake => lake.district)).size;
+  const highRiskCount = lakes.filter(lake => lake.riskLevel === 'CRITICAL' || lake.riskLevel === 'HIGH').length;
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-base)', color: 'var(--text-primary)', fontFamily: 'Inter, sans-serif' }}>
 
@@ -182,9 +199,9 @@ export const Landing: React.FC = () => {
             {/* Stats row */}
             <div className="flex gap-8 mt-10">
               {[
-                { n: '67+', label: 'Lakes Monitored' },
-                { n: '12+', label: 'Districts Covered' },
-                { n: 'AI-Driven', label: 'Risk Scoring' },
+                { n: datasetLoaded ? String(lakes.length) : '—', label: 'Lakes in Prepared Data' },
+                { n: datasetLoaded ? String(districtCount) : '—', label: 'Districts Represented' },
+                { n: datasetLoaded ? String(highRiskCount) : '—', label: 'High/Critical Risk' },
               ].map(({ n, label }) => (
                 <div key={label}>
                   <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--cyan)' }}>{n}</div>
@@ -196,7 +213,7 @@ export const Landing: React.FC = () => {
 
           {/* Right: Visual */}
           <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-            <HeroVisual />
+            <HeroVisual lakes={lakes} datasetLoaded={datasetLoaded} />
           </div>
         </div>
       </section>
@@ -207,7 +224,7 @@ export const Landing: React.FC = () => {
           <SectionHeader
             tag="WHY HIMNETRA"
             title="Comprehensive GLOF Intelligence"
-            subtitle="A multi-modal disaster monitoring platform combining satellite remote sensing, deep learning, and hydrodynamic modelling."
+            subtitle="A research prototype combining prepared satellite-derived records, model outputs, weighted risk rankings, and stored flood-routing results."
           />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: 20, marginTop: 48 }}>
             {FEATURES.map(({ icon: Icon, title, desc }) => (
@@ -245,7 +262,7 @@ export const Landing: React.FC = () => {
           <SectionHeader
             tag="METHODOLOGY"
             title="How HIMNETRA Works"
-            subtitle="A five-stage processing pipeline from raw satellite data to actionable early warning."
+            subtitle="A five-stage workflow from prepared satellite data to historical outputs and manually reviewed alerts."
           />
           <div style={{ marginTop: 56, position: 'relative' }}>
             {/* Connector line */}
@@ -396,7 +413,7 @@ export const Landing: React.FC = () => {
             <span>© 2026 HIMNETRA — Academic Research Prototype</span>
             <div className="flex items-center gap-2">
               <Database size={12} />
-              <span>Demo Mode — Live backend not connected</span>
+              <span>{IS_LIVE ? 'Prepared-data API URL configured — no live satellite feed' : 'No backend data source configured'}</span>
             </div>
           </div>
         </div>
@@ -406,7 +423,14 @@ export const Landing: React.FC = () => {
 };
 
 // ─── Hero Visual ─────────────────────────────────────────────
-const HeroVisual: React.FC = () => (
+const HeroVisual: React.FC<{ lakes: Lake[]; datasetLoaded: boolean }> = ({ lakes, datasetLoaded }) => {
+  const highRiskLakes = lakes
+    .filter(lake => lake.riskLevel === 'CRITICAL' || lake.riskLevel === 'HIGH')
+    .slice(0, 2);
+  const criticalCount = lakes.filter(lake => lake.riskLevel === 'CRITICAL').length;
+  const latestDataDate = lakes.reduce((latest, lake) => lake.lastUpdated > latest ? lake.lastUpdated : latest, '');
+
+  return (
   <div style={{ position: 'relative', width: '100%', maxWidth: 480 }}>
     {/* Main card */}
     <div style={{
@@ -415,75 +439,46 @@ const HeroVisual: React.FC = () => (
       borderRadius: 16, padding: 20,
       boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
     }}>
-      {/* Map placeholder */}
       <div style={{
         height: 220, borderRadius: 10,
-        background: 'linear-gradient(135deg, #0a1a2e 0%, #0d2040 40%, #0a1628 100%)',
+        background: 'var(--bg-card)',
         border: '1px solid var(--border)', position: 'relative', overflow: 'hidden',
         marginBottom: 16,
       }}>
-        {/* Simulated terrain */}
-        <svg width="100%" height="100%" viewBox="0 0 400 220" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="terrain" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#1a3a5c" stopOpacity="0.6" />
-              <stop offset="100%" stopColor="#0a1628" stopOpacity="0.2" />
-            </linearGradient>
-          </defs>
-          {/* Mountain silhouette */}
-          <path d="M0,180 L60,100 L120,140 L180,60 L240,110 L300,80 L360,120 L400,90 L400,220 L0,220Z" fill="url(#terrain)" />
-          <path d="M0,200 L80,150 L140,170 L200,120 L260,140 L320,115 L380,135 L400,110 L400,220 L0,220Z" fill="rgba(10,22,40,0.8)" />
-          {/* Lake */}
-          <ellipse cx="220" cy="155" rx="28" ry="14" fill="rgba(6,182,212,0.55)" />
-          <ellipse cx="220" cy="155" rx="28" ry="14" fill="none" stroke="rgba(6,182,212,0.9)" strokeWidth="1.5" strokeDasharray="4 3" />
-          {/* Grid lines */}
-          {[0,40,80,120,160,200,240,280,320,360,400].map(x => (
-            <line key={x} x1={x} y1={0} x2={x} y2={220} stroke="rgba(6,182,212,0.04)" strokeWidth={1} />
-          ))}
-          {[0,44,88,132,176,220].map(y => (
-            <line key={y} x1={0} y1={y} x2={400} y2={y} stroke="rgba(6,182,212,0.04)" strokeWidth={1} />
-          ))}
-          {/* Markers */}
-          <circle cx="220" cy="155" r="5" fill="#ef4444" opacity="0.9" />
-          <circle cx="220" cy="155" r="11" fill="none" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="3 2" opacity="0.5" />
-          <circle cx="160" cy="138" r="4" fill="#f97316" opacity="0.8" />
-          <circle cx="280" cy="148" r="3.5" fill="#f59e0b" opacity="0.7" />
-          <circle cx="120" cy="165" r="3" fill="#22c55e" opacity="0.8" />
-        </svg>
-        {/* Overlay labels */}
-        <div style={{ position: 'absolute', top: 10, left: 10, fontSize: 10, color: 'var(--cyan)', letterSpacing: '0.08em', fontWeight: 600 }}>HIMACHAL PRADESH — GIS VIEW</div>
-        <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', alignItems: 'center', gap: 4, fontSize: 10, color: '#22c55e' }}>
-          <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} className="animate-pulse-dot" />
-          LIVE
-        </div>
+        {datasetLoaded && lakes.length > 0
+          ? <GlofMap lakes={lakes} height="220px" showLayers={false} />
+          : <div style={{ height: '100%', display: 'grid', placeItems: 'center', color: 'var(--text-muted)', fontSize: 12 }}>
+            No prepared lake data loaded
+          </div>}
       </div>
 
-      {/* Alert cards */}
-      {[
-        { lake: 'Gepang Gath', risk: 'CRITICAL', color: '#ef4444', delta: '+7.4%' },
-        { lake: 'Samudra Tapu', risk: 'HIGH', color: '#f97316', delta: '+12.1%' },
-      ].map(({ lake, risk, color, delta }) => (
-        <div key={lake} style={{
+      {/* Highest prepared risk records */}
+      {highRiskLakes.map(lake => (
+        <div key={lake.id} style={{
           display: 'flex', alignItems: 'center', gap: 12,
           padding: '8px 12px',
-          background: `${color}10`, border: `1px solid ${color}25`,
+          background: `${getRiskColor(lake.riskLevel)}10`, border: `1px solid ${getRiskColor(lake.riskLevel)}25`,
           borderRadius: 8, marginBottom: 8,
         }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} className="animate-pulse-dot" />
-          <span style={{ fontSize: 12, color: '#cbd5e1', flex: 1 }}>{lake}</span>
-          <span style={{ fontSize: 11, color, fontWeight: 600 }}>{risk}</span>
-          <span style={{ fontSize: 11, color: '#f97316', fontWeight: 500 }}>{delta}</span>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: getRiskColor(lake.riskLevel), flexShrink: 0 }} />
+          <span style={{ fontSize: 12, color: '#cbd5e1', flex: 1 }}>{lake.name}</span>
+          <span style={{ fontSize: 11, color: getRiskColor(lake.riskLevel), fontWeight: 600 }}>{lake.riskLevel}</span>
+          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>{lake.riskScore}/100</span>
         </div>
       ))}
 
       {/* Bottom stats */}
       <div style={{ display: 'flex', gap: 12, marginTop: 12 }}>
-        {[{ label: 'Monitored', val: '67' }, { label: 'High Risk', val: '8' }, { label: 'Alerts', val: '2' }].map(({ label, val }) => (
+        {[
+          { label: 'Dataset Lakes', val: datasetLoaded ? String(lakes.length) : '—' },
+          { label: 'Critical Risk', val: datasetLoaded ? String(criticalCount) : '—' },
+          { label: 'Latest Record', val: latestDataDate || '—' },
+        ].map(({ label, val }) => (
           <div key={label} style={{
             flex: 1, background: 'var(--bg-card)', border: '1px solid var(--border)',
             borderRadius: 7, padding: '8px', textAlign: 'center',
           }}>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--cyan)' }}>{val}</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--cyan)' }}>{val}</div>
             <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{label}</div>
           </div>
         ))}
@@ -499,10 +494,11 @@ const HeroVisual: React.FC = () => (
       display: 'flex', alignItems: 'center', gap: 6,
     }}>
       <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444', display: 'inline-block' }} className="animate-pulse-dot" />
-      CRITICAL ALERT ACTIVE
+      {datasetLoaded ? `${criticalCount} CRITICAL-RISK LAKES` : 'DATA UNAVAILABLE'}
     </div>
   </div>
-);
+  );
+};
 
 // ─── Section Header ──────────────────────────────────────────
 const SectionHeader: React.FC<{ tag: string; title: string; subtitle: string }> = ({ tag, title, subtitle }) => (

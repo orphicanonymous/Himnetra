@@ -4,15 +4,21 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Toast } from '../ui';
 import type { Notification } from '../../types';
-import { MOCK_NOTIFICATIONS } from '../../services/mockData';
-import { fetchNotifications } from '../../services/api';
+import { fetchNotifications, IS_LIVE } from '../../services/api';
 
 export const AppLayout: React.FC = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
+  const [collapsed, setCollapsed] = useState(() => window.innerWidth <= 700);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null);
 
   useEffect(() => {
+    const handleResize = () => setCollapsed(window.innerWidth <= 700);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!IS_LIVE) return;
     fetchNotifications()
       .then(setNotifications)
       .catch(() => showToast('Could not load notifications from the server.', 'error'));

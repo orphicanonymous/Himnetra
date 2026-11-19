@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Settings as SettingsIcon, Map, Bell, Database, Cpu, Save } from 'lucide-react';
-import { DemoBanner } from '../components/ui';
+import { DemoBanner, PageHeader } from '../components/ui';
 import { showToast } from '../components/layout/AppLayout';
+import { API_BASE_URL, IS_LIVE } from '../services/api';
 
 type SettingsTab = 'general' | 'map' | 'notifications' | 'data' | 'system';
 
@@ -19,7 +20,6 @@ export const Settings: React.FC = () => {
     notifReports: true,
     riskThreshold: 70,
     updateInterval: '24h',
-    demoMode: true,
   });
 
   const update = (key: keyof typeof settings, value: unknown) => {
@@ -27,7 +27,7 @@ export const Settings: React.FC = () => {
   };
 
   const save = () => {
-    showToast('Settings saved (demo — not persisted to backend).', 'success');
+    showToast('Preferences saved for this page session.', 'success');
   };
 
   const TABS: { id: SettingsTab; label: string; icon: React.ElementType }[] = [
@@ -40,21 +40,14 @@ export const Settings: React.FC = () => {
 
   return (
     <div style={{ padding: 24, minHeight: '100%' }}>
-      {/* Header */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <SettingsIcon size={18} style={{ color: 'var(--cyan)' }} />
-            <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)' }}>Settings</h1>
-          </div>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            Configure HIMNETRA dashboard preferences and display options.
-          </p>
-        </div>
-        <DemoBanner message="Demo — Settings are not persisted to backend." liveMessage="Settings are not persisted to the backend." />
-      </div>
+      <PageHeader
+        title="Settings"
+        description="Configure HIMNETRA dashboard preferences and display options."
+        icon={<SettingsIcon size={18} />}
+        actions={<DemoBanner message="Preferences are stored for this page session only." liveMessage="Preferences are stored for this page session only." />}
+      />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20 }}>
+      <div className="settings-layout" style={{ display: 'grid', gridTemplateColumns: '200px 1fr', gap: 20 }}>
         {/* Tab nav */}
         <div style={{
           background: 'var(--bg-card)', border: '1px solid var(--border)',
@@ -179,11 +172,11 @@ export const Settings: React.FC = () => {
               <div style={{ padding: '14px 0', borderBottom: '1px solid var(--border-subtle)' }}>
                 <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 4 }}>Backend API Endpoint</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
-                  Set VITE_API_URL environment variable to connect to FastAPI backend
+                  {IS_LIVE ? 'API URL configured; backend connectivity is checked when data is requested' : 'Set VITE_API_URL and restart Vite to load prepared backend outputs'}
                 </div>
                 <input
                   readOnly
-                  value="Not configured (DEMO MODE)"
+                  value={API_BASE_URL ?? 'Not configured — no backend data is displayed'}
                   style={{
                     width: '100%', background: 'var(--bg-elevated)',
                     border: '1px solid var(--border)', borderRadius: 7,
@@ -199,12 +192,12 @@ export const Settings: React.FC = () => {
           {activeTab === 'system' && (
             <SettingsSection title="System Information" desc="Platform and environment details">
               {[
-                { label: 'Application', val: 'HIMNETRA v0.1.0-prototype' },
-                { label: 'Mode', val: 'DEMO — Backend not connected' },
+                { label: 'Application', val: 'HIMNETRA v0.1.0' },
+                { label: 'Mode', val: IS_LIVE ? 'Prepared-data API URL configured' : 'Unavailable — no API configured' },
                 { label: 'Frontend Stack', val: 'React 19 + TypeScript + Vite' },
                 { label: 'Mapping Library', val: 'Leaflet + React-Leaflet' },
-                { label: 'AI Model', val: 'U-Net (pending integration)' },
-                { label: 'Risk Engine', val: 'Random Forest prototype (pending)' },
+                { label: 'Segmentation', val: 'Prepared U-Net outputs; no live inference' },
+                { label: 'Risk Engine', val: 'Six-factor relative weighted score' },
               ].map(({ label, val }) => (
                 <div key={label} className="flex items-center justify-between" style={{
                   padding: '10px 0', borderBottom: '1px solid var(--border-subtle)',
@@ -219,11 +212,12 @@ export const Settings: React.FC = () => {
                 borderRadius: 10,
               }}>
                 <div style={{ fontSize: 12, color: 'var(--cyan)', fontWeight: 600, marginBottom: 6 }}>
-                  ⬡ DEMO MODE ACTIVE
+                  {IS_LIVE ? 'PREPARED-DATA API' : 'NO DATA SOURCE'}
                 </div>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-                  All data displayed is prototype/mock data. The system is not connected to live Sentinel satellite feeds,
-                  U-Net processing pipeline, or the FastAPI backend. Connect VITE_API_URL to enable live operation.
+                  {IS_LIVE
+                    ? 'The API URL is configured. The dashboard reads prepared backend outputs; satellite acquisition is not live and segmentation is not run on demand.'
+                    : 'No fallback dataset is used. Configure VITE_API_URL and start FastAPI to load prepared backend outputs.'}
                 </p>
               </div>
             </SettingsSection>

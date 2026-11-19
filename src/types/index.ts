@@ -79,17 +79,13 @@ export interface FloodSimulation {
   lakeId: string;
   lakeName: string;
   scenario: 'MINOR' | 'MODERATE' | 'MAJOR' | 'EXTREME';
-  waterVolume: number; // million m³
-  estimatedRelease: number; // million m³
-  breachSeverity: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME';
-  peakDischarge?: number; // m³/s (empirical)
-  floodExtent: number | null; // km² (null until flood-routing results exist)
+  estimatedRelease: number; // million m³, from prepared flood-routing output
+  peakDischarge: number; // m³/s, from prepared flood-routing output
+  floodExtent: number | null; // km²
   timeToImpact: number | null; // minutes
   affectedSettlements: number | null;
   affectedRoads: number | null; // km
-  downstreamAvailable?: boolean;
   riskZone: RiskLevel;
-  simulationDuration: number; // hours
   status: 'PENDING' | 'RUNNING' | 'COMPLETE';
   timestamp: string;
 }
@@ -108,16 +104,28 @@ export interface Alert {
   acknowledged: boolean;
 }
 
+export interface SubscriberRegistration {
+  name: string;
+  phone?: string;
+  email?: string;
+  lat: number;
+  lng: number;
+}
+
+export interface AlertDispatch {
+  lake: string;
+  radiusKm: number;
+  recipients: number;
+  results: { name: string; email: string | null; sms: string | null }[];
+}
+
 export interface SatelliteSource {
   id: string;
   name: string;
   shortName: string;
   type: 'OPTICAL' | 'SAR' | 'DEM' | 'METEO';
-  status: 'AVAILABLE' | 'UNAVAILABLE' | 'DEGRADED' | 'DEMO';
-  lastAcquisition: string;
   resolution: string;
   coverage: string;
-  processingStatus: 'IDLE' | 'PROCESSING' | 'QUEUED';
   revisitTime: string;
 }
 
@@ -157,8 +165,39 @@ export interface LakePolygonCollection {
   }[];
 }
 
+export interface FloodPolygonCollection {
+  type: 'FeatureCollection';
+  features: {
+    type: 'Feature';
+    geometry: { type: string; coordinates: unknown };
+    properties: { lakeId: string; scenario: FloodSimulation['scenario']; extent_km2: number };
+  }[];
+}
+
 export interface DashboardCharts {
   riskDistribution: { name: string; value: number; color: string }[];
   expansionByYear: { month: string; critical: number; high: number; medium: number }[];
-  observationFrequency: { month: string; sentinel2: number; sentinel1: number }[];
+}
+
+export interface DashboardStats {
+  totalLakes: number;
+  highRiskLakes: number;
+  mediumRiskLakes: number;
+  lowRiskLakes: number;
+  criticalAlerts: number;
+  activeAlerts: number;
+  latestDataDate: string;
+  monitoringRegion: string;
+}
+
+export interface DataOutputStatus {
+  name: string;
+  file: string;
+  available: boolean;
+  lastModified: string | null;
+}
+
+export interface DataFreshness {
+  checkedAt: string;
+  files: DataOutputStatus[];
 }

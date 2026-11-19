@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import type { RiskLevel } from '../types';
+import { getDashboardPreferences } from '../services/preferences';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -53,10 +54,31 @@ export function timeAgo(iso: string): string {
   return `${days}d ago`;
 }
 
-export function formatArea(km2: number): string {
-  return `${km2.toFixed(2)} km²`;
+export function getAreaUnitLabel(): string {
+  return getDashboardPreferences().areaUnit === 'ha' ? 'ha' : 'km²';
+}
+
+export function formatAreaValue(km2: number, decimals = 2): string {
+  if (getDashboardPreferences().areaUnit === 'ha') {
+    return (km2 * 100).toLocaleString('en-IN', { maximumFractionDigits: decimals });
+  }
+  return km2.toFixed(decimals);
+}
+
+export function formatArea(km2: number, decimals = 2): string {
+  return `${formatAreaValue(km2, decimals)} ${getAreaUnitLabel()}`;
+}
+
+export function formatDistance(km: number, decimals = 1): string {
+  if (getDashboardPreferences().distanceUnit === 'm') {
+    return `${(km * 1000).toLocaleString('en-IN', { maximumFractionDigits: decimals })} m`;
+  }
+  return `${km.toFixed(decimals)} km`;
 }
 
 export function formatElev(m: number): string {
+  if (getDashboardPreferences().elevationUnit === 'ft') {
+    return `${(m * 3.28084).toLocaleString('en-IN', { maximumFractionDigits: 0 })} ft`;
+  }
   return `${m.toLocaleString('en-IN')} m`;
 }

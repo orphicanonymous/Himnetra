@@ -1,30 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Layers, ShieldAlert, AlertTriangle, TrendingUp,
   Satellite, RefreshCw, ArrowUpRight, ArrowRight,
 } from 'lucide-react';
 import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
 import { GlofMap } from '../components/maps/GlofMap';
 import { RiskBadge } from '../components/ui/RiskBadge';
-import { DemoBanner, Skeleton } from '../components/ui';
+import { Button, DemoBanner, PageFrame, PageHeader, SectionCard, Skeleton, StatCard } from '../components/ui';
 import {
-  fetchLakes, fetchDashboardStats, fetchAlerts, fetchDashboardCharts, IS_LIVE,
+  fetchLakes, fetchDashboardStats, fetchAlerts, fetchDashboardCharts, fetchDataFreshness,
 } from '../services/api';
-import type { Lake, Alert, DashboardCharts } from '../types';
-import { getRiskColor, formatDate } from '../utils';
-import { showToast } from '../components/layout/AppLayout';
+import type { Lake, Alert, DashboardCharts, DataFreshness } from '../types';
+import { getRiskColor, formatArea, formatDate, formatDateTime } from '../utils';
 
-const CHART_COLORS = {
-  cyan: '#06b6d4',
-  orange: '#f97316',
-  amber: '#f59e0b',
-  green: '#22c55e',
-};
-
+const REFRESH_INTERVAL_MS = 60_000;
 const CustomTooltip = ({ active, payload, label }: {active?:boolean;payload?:{name:string;value:number;color:string}[];label?:string}) => {
   if (!active || !payload?.length) return null;
   return (
@@ -48,58 +41,105 @@ export const Dashboard: React.FC = () => {
   const [lakes, setLakes] = useState<Lake[]>([]);
   const [stats, setStats] = useState<Awaited<ReturnType<typeof fetchDashboardStats>> | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [charts, setCharts] = useState<DashboardCharts>({ riskDistribution: [], expansionByYear: [], observationFrequency: [] });
+  const [charts, setCharts] = useState<DashboardCharts>({ riskDistribution: [], expansionByYear: [] });
+  const [freshness, setFreshness] = useState<DataFreshness | null>(null);
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [lastChecked, setLastChecked] = useState<Date | null>(null);
   const [selectedLake, setSelectedLake] = useState<Lake | null>(null);
+  const refreshInFlight = useRef(false);
+
+  const refreshDashboard = useCallback(async () => {
+    if (refreshInFlight.current) return;
+    refreshInFlight.current = true;
+    setRefreshing(true);
+    try {
+      const [l, s, a, c, f] = await Promise.all([
+        fetchLakes(), fetchDashboardStats(), fetchAlerts(), fetchDashboardCharts(), fetchDataFreshness(),
+      ]);
+      setLakes(l);
+      setStats(s);
+      setAlerts(a);
+      setCharts(c);
+      setFreshness(f);
+      setLastChecked(new Date());
+      setLoadError(null);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : 'Could not load dashboard data from the server.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+      refreshInFlight.current = false;
+    }
+  }, []);
 
   useEffect(() => {
-    Promise.all([fetchLakes(), fetchDashboardStats(), fetchAlerts(), fetchDashboardCharts()])
-      .then(([l, s, a, c]) => {
-        setLakes(l);
-        setStats(s);
-        setAlerts(a);
-        setCharts(c);
-      })
-      .catch(() => {
-        setLoadError(true);
-        showToast('Could not load dashboard data from the server.', 'error');
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    void refreshDashboard();
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === 'visible') void refreshDashboard();
+    }, REFRESH_INTERVAL_MS);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void refreshDashboard();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [refreshDashboard]);
 
   const activeAlerts = alerts.filter(a => a.status === 'ACTIVE');
 
   return (
-    <div style={{ padding: 24, minHeight: '100%' }}>
-      {/* Header row */}
-      <div className="flex items-start justify-between mb-5 flex-wrap gap-3">
-        <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>
-            Glacial Lake Risk Overview
-          </h1>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
-            Real-time intelligence for high-altitude glacial lakes across Himachal Pradesh.
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <DemoBanner message="Demo Data — Mock values. Connect backend for live data." />
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-              borderRadius: 8, padding: '7px 14px', color: 'var(--text-secondary)',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13,
-            }}
+    <PageFrame>
+      <PageHeader
+        title="Glacial Lake Risk Overview"
+        description="Prepared model outputs for high-altitude glacial lakes across Himachal Pradesh."
+        meta={<span aria-live="polite">
+            {lastChecked
+              ? `Backend checked at ${lastChecked.toLocaleTimeString()} · auto-refreshes every minute while this tab is open`
+              : 'Connecting to the backend…'}
+          </span>}
+        actions={<>
+          <DemoBanner
+            message="Backend API not configured — no model data is loaded."
+            liveMessage="Prepared pipeline outputs only; this is not a live monitoring feed."
+          />
+          <Button
+            onClick={() => void refreshDashboard()}
+            disabled={refreshing}
+            variant="secondary"
+            aria-label="Refresh dashboard data"
           >
-            <RefreshCw size={13} /> Refresh
-          </button>
-        </div>
-      </div>
+            <RefreshCw size={13} className={refreshing ? 'animate-spin' : undefined} />
+            {refreshing ? 'Updating…' : 'Refresh'}
+          </Button>
+        </>}
+      />
 
+      {freshness && (
+        <details style={{ marginBottom: 16, color: 'var(--text-muted)', fontSize: 11 }}>
+          <summary style={{ cursor: 'pointer' }}>
+            Prepared file freshness · {freshness.files.filter(file => file.available).length}/{freshness.files.length} files available
+          </summary>
+          <p style={{ margin: '8px 0' }}>
+            File modification time is not the satellite acquisition time. The dashboard checks for changed files every minute.
+          </p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px' }}>
+            {freshness.files.map(file => (
+              <span key={file.file}>
+                {file.name}: {file.available && file.lastModified ? formatDateTime(file.lastModified) : 'not available'}
+              </span>
+            ))}
+          </div>
+        </details>
+      )}
       {loadError && (
         <div role="alert" style={{ marginBottom: 16, color: '#ef4444', fontSize: 13 }}>
-          Dashboard data is unavailable. Check the backend connection and refresh.
+          {lastChecked
+            ? `Refresh failed; showing data from ${lastChecked.toLocaleTimeString()}. ${loadError}`
+            : `Dashboard data is unavailable. ${loadError}`}
         </div>
       )}
 
@@ -111,17 +151,17 @@ export const Dashboard: React.FC = () => {
           ))
         ) : (
           <>
-            <KpiCard icon={<Layers size={20} />} value={stats?.totalLakes ?? 0} label="Monitored Lakes" sub="Himachal Pradesh" color="var(--cyan)" trend="+4" />
-            <KpiCard icon={<ShieldAlert size={20} />} value={stats?.highRiskLakes ?? 0} label="High Risk Lakes" sub="Require monitoring" color="#f97316" trend="+1" trendBad />
-            <KpiCard icon={<AlertTriangle size={20} />} value={stats?.mediumRiskLakes ?? 0} label="Medium Risk" sub="Under observation" color="#f59e0b" trend="+2" trendBad />
-            <KpiCard icon={<TrendingUp size={20} />} value={stats?.criticalAlerts ?? 0} label="Critical Alerts" sub="Active this period" color="#ef4444" trend="+1" trendBad />
-            <KpiCard icon={<Satellite size={20} />} value={formatDate(stats?.lastSatelliteUpdate ?? '')} label="Last Satellite Update" sub="Sentinel-2 MSI" color="var(--cyan)" isDate />
+            <StatCard icon={<Layers size={20} />} value={stats?.totalLakes ?? 0} label="Lakes in Dataset" description={stats?.monitoringRegion ?? 'Prepared outputs'} />
+            <StatCard icon={<ShieldAlert size={20} />} value={stats?.highRiskLakes ?? 0} label="High Risk Lakes" description="Prepared risk classifications" accent="#f97316" />
+            <StatCard icon={<AlertTriangle size={20} />} value={stats?.mediumRiskLakes ?? 0} label="Medium Risk" description="Prepared risk classifications" accent="#f59e0b" />
+            <StatCard icon={<TrendingUp size={20} />} value={stats?.criticalAlerts ?? 0} label="Critical Alerts" description="Currently active risk alerts" accent="#ef4444" />
+            <StatCard icon={<Satellite size={20} />} value={formatDate(stats?.latestDataDate ?? '')} label="Latest Prepared Data" description="Record date, not acquisition status" smallValue />
           </>
         )}
       </div>
 
       {/* ── Map + Active Alerts ───────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, marginBottom: 24 }}>
+      <div className="dashboard-map-alerts" style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, marginBottom: 24 }}>
         {/* Map */}
         <div style={{
           background: 'var(--bg-card)', border: '1px solid var(--border)',
@@ -203,9 +243,9 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* ── Charts Row ───────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 24 }}>
         {/* Risk distribution */}
-        <ChartCard title="Risk Distribution" subtitle={IS_LIVE ? 'Lakes by relative risk level' : 'Lakes by category (demo)'}>
+        <SectionCard title="Risk Distribution" description="Prepared lake counts by relative risk level">
           <ResponsiveContainer width="100%" height={180}>
             <PieChart>
               <Pie
@@ -234,10 +274,10 @@ export const Dashboard: React.FC = () => {
               />
             </PieChart>
           </ResponsiveContainer>
-        </ChartCard>
+        </SectionCard>
 
-        {/* Alerts over time */}
-        <ChartCard title={IS_LIVE ? 'Area Increases by Year' : 'Alerts Over Time'} subtitle={IS_LIVE ? 'Lakes whose area rose >12 / 25 / 40% vs the previous composite' : 'Last 7 months (demo)'}>
+        {/* Area changes */}
+        <SectionCard title="Area Increases by Year" description="Counts of lakes whose area rose >12 / 25 / 40% between composites">
           <ResponsiveContainer width="100%" height={180}>
             <BarChart data={charts.expansionByYear} barSize={7} barGap={2}>
               <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
@@ -248,30 +288,8 @@ export const Dashboard: React.FC = () => {
               <Bar dataKey="medium" name="Medium" fill="#f59e0b" radius={[2, 2, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </ChartCard>
+        </SectionCard>
 
-        {/* Satellite observations */}
-        <ChartCard title="Satellite Acquisitions" subtitle={IS_LIVE ? 'Yearly composites processed (Jul 15 - Sep 30)' : 'Observations per month (demo)'}>
-          <ResponsiveContainer width="100%" height={180}>
-            <AreaChart data={charts.observationFrequency}>
-              <defs>
-                <linearGradient id="s2grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={CHART_COLORS.cyan} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={CHART_COLORS.cyan} stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="s1grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={CHART_COLORS.orange} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={CHART_COLORS.orange} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="month" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: 'var(--text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} width={20} />
-              <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="sentinel2" name="Sentinel-2" stroke={CHART_COLORS.cyan} fill="url(#s2grad)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="sentinel1" name="Sentinel-1" stroke={CHART_COLORS.orange} fill="url(#s1grad)" strokeWidth={2} dot={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </ChartCard>
       </div>
 
       {/* ── Top Lakes Table ───────────────────────────── */}
@@ -318,9 +336,9 @@ export const Dashboard: React.FC = () => {
                     </td>
                     <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{lake.district}</td>
                     <td style={{ padding: '10px 16px', color: 'var(--text-secondary)' }}>{lake.elevation.toLocaleString()} m</td>
-                    <td style={{ padding: '10px 16px', color: 'var(--text-primary)' }}>{lake.currentArea.toFixed(2)} km²</td>
+                    <td style={{ padding: '10px 16px', color: 'var(--text-primary)' }}>{formatArea(lake.currentArea)}</td>
                     <td style={{ padding: '10px 16px', color: lake.areaChangePct > 5 ? '#f97316' : 'var(--text-secondary)', fontWeight: 500 }}>
-                      +{lake.areaChangePct.toFixed(1)}%
+                      {lake.areaChangePct > 0 ? '+' : ''}{lake.areaChangePct.toFixed(1)}%
                     </td>
                     <td style={{ padding: '10px 16px' }}><RiskBadge level={lake.riskLevel} /></td>
                     <td style={{ padding: '10px 16px' }}>
@@ -342,53 +360,8 @@ export const Dashboard: React.FC = () => {
           </table>
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 };
-
-// ── KPI Card ───────────────────────────────────────────────────
-const KpiCard: React.FC<{
-  icon: React.ReactNode; value: string | number;
-  label: string; sub: string; color: string;
-  trend?: string; trendBad?: boolean; isDate?: boolean;
-}> = ({ icon, value, label, sub, color, trend, trendBad, isDate }) => (
-  <div className="himnetra-card" style={{ position: 'relative', overflow: 'hidden' }}>
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <div style={{
-        width: 36, height: 36, borderRadius: 8,
-        background: `${color}18`, border: `1px solid ${color}30`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color,
-      }}>
-        {icon}
-      </div>
-      {trend && (
-        <span style={{
-          fontSize: 11, fontWeight: 600, color: trendBad ? '#ef4444' : '#22c55e',
-          background: trendBad ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)',
-          padding: '2px 8px', borderRadius: 99,
-        }}>
-          {trend}
-        </span>
-      )}
-    </div>
-    <div style={{ fontSize: isDate ? 15 : 28, fontWeight: isDate ? 600 : 700, color: 'var(--text-primary)', lineHeight: 1, marginBottom: 6 }}>
-      {value}
-    </div>
-    <div style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 500, marginBottom: 2 }}>{label}</div>
-    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{sub}</div>
-  </div>
-);
-
-// ── Chart Card ──────────────────────────────────────────────────
-const ChartCard: React.FC<{ title: string; subtitle: string; children: React.ReactNode }> = ({ title, subtitle, children }) => (
-  <div className="himnetra-card" style={{ padding: '14px 16px' }}>
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>{title}</div>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{subtitle}</div>
-    </div>
-    {children}
-  </div>
-);
 
 export default Dashboard;

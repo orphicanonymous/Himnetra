@@ -36,14 +36,14 @@ def make_pdf(path: Path, rtype: str, lakes: list[dict], risks: dict, history: di
             el += [Paragraph("Lake area by year (km2, Sentinel-1/2 deep-learning segmentation)", ss["Heading2"]),
                    _table([["Year", "Area km2"]] + [[p["date"][:4], f'{p["area"]:.3f}'] for p in h], [3*cm, 3*cm]), Spacer(1, 12)]
         if sim:
-            f = lambda v, u="": "pending flood model" if v is None else f"{v}{u}"
+            f = lambda v, u="": "unavailable" if v is None else f"{v}{u}"
             el += [Paragraph(f"Scenario: {sim['scenario']}", ss["Heading2"]),
-                   _table([["Quantity", "Value"], ["Lake volume (empirical)", f"{sim['waterVolume']} M m3"],
-                           ["Released volume", f"{sim['estimatedRelease']} M m3"], ["Peak discharge (empirical)", f"{sim['peakDischarge']} m3/s"],
+                   _table([["Quantity", "Prepared routing output"], ["Released volume", f"{sim['estimatedRelease']} M m3"],
+                           ["Peak discharge", f"{sim['peakDischarge']} m3/s"],
                            ["Flood extent", f(sim['floodExtent'], ' km2')], ["Time to impact", f(sim['timeToImpact'], ' min')],
                            ["Settlements affected", f(sim['affectedSettlements'])], ["Roads affected", f(sim['affectedRoads'], ' km')]],
                           [6*cm, 8*cm]), Spacer(1, 12)]
     el.append(Paragraph("Method: lake outlines from a U-Net trained on optical-index weak labels and applied to RGB + Sentinel-1 + DEM; "
-                        "risk score is a relative weighted ranking across the monitored lakes. Scenario volumes use empirical relations "
-                        "(Huggel 2002, Evans 1986) and are indicative only; this is not a validated hydrodynamic forecast.", ss["Italic"]))
+                        "risk score is a relative weighted ranking across the monitored lakes. Flood scenario values are read from prepared "
+                        "routing outputs, not a trained ML model; they are not validated hydrodynamic forecasts.", ss["Italic"]))
     doc.build(el)
